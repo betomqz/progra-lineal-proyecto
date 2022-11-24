@@ -1,0 +1,189 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-noshorthands]{babel}
+\decimalpoint
+\usepackage{amssymb,amsmath,amsthm,amsfonts,mathtools}
+\usepackage{tcolorbox}
+\usepackage{microtype}
+
+% ---- LINKS ----
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, urlcolor=blue}
+
+% ---- IMÁGENES ----
+\usepackage{graphicx}
+\graphicspath{ {imgs/} }
+
+% ---- FORMATO DE TÍTULOS ----
+\usepackage{titlesec}
+\titlespacing{\section}{0pt}{1em plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing{\subsection}{0pt}{1em plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing{\subsubsection}{0pt}{1em plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+
+% ---- FORMATO DE LISTAS ----
+\usepackage{enumitem}
+\setlist[itemize]{topsep=-0.5em} % es media m para compensar
+\setlist[enumerate]{topsep=-0.5em}
+
+% ---- GRÁFICAS ----
+\usepackage{tikz}
+\usepackage{scalerel}
+\usepackage{pict2e}
+\usepackage{tkz-euclide}
+\usetikzlibrary{calc}
+\usetikzlibrary{patterns,arrows.meta}                   % Mejores flechas
+\usetikzlibrary{shadows}                                % Sombras
+\usetikzlibrary{external}                               % ¿?
+\usetikzlibrary{decorations.pathreplacing,calligraphy}  % Para poder graficar el '{'
+% Plots
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}                             % Ancho de las gráficas: width=6.5cm,
+\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{fillbetween}
+
+% ---- COLORES ----
+\usepackage{xcolor}
+\definecolor{miAzul}{RGB}{13, 33, 161}
+\definecolor{miRojo}{RGB}{186, 24, 27}
+
+% Para el pseudocódigo
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+
+\usepackage{listings}
+
+% ---- FORMATO DE LAS PÁGINAS ----
+\usepackage[a4paper, width=165mm, top=20mm, bottom = 20mm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+% Primera página. Comentar si se quiere que todas sean iguales
+\fancypagestyle{firststyle}{
+   \fancyhf{}
+   \fancyfoot[R]{\footnotesize \thepage}
+   \renewcommand{\headrulewidth}{0pt}
+}
+% Para el resto del documento.
+\fancyhf{}
+\lhead{\footnotesize Formulación y solución de P.P.L.}
+\chead{\footnotesize \textbf{Proyecto final}}
+\rhead{\footnotesize \today}
+\lfoot{\footnotesize Equipo 4}
+\cfoot{\footnotesize \textsc{Programación Lineal}}
+\rfoot{\footnotesize \thepage}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+\setlength{\parskip}{1em}
+\setlength{\parindent}{0cm}
+
+% ---- TEXTO DE RELLENO ----
+\usepackage{lipsum}  
+
+\title{
+    La Materia \\
+    \large Título
+}
+\author{José Alberto Márquez Luján, 187917}
+\date{\today}
+
+\begin{document}
+\input{portada.tex}
+
+\section{Programación del Método Simplex}
+\subsection{Pseudocódigo y explicación}
+La programación del Método Simplex se llevó a cabo en el lenguaje de programación Python. Se divide en cuatro funciones importantes: 
+\begin{enumerate}
+    \item \textsc{solver} es la función principal: aquí se manda a llamar al resto de los métodos. Recibe como entrada los datos del problema en su formulación estándar y regresa la tabla final y el valor de la función objetivo evaulada en la solución óptima.
+    \item \textsc{matrizT0} es una función sencilla que se utiliza para construir la tabla cero del problema a partir de los datos y con base en el Método de la Gran M.
+    \item \textsc{reglaDeBland} es una función que recibe como parámetro una tabla Simplex y, basándose en la Regla de Bland, decide si la tabla es final, el problema no es acotado o hay que pivotear; si es final, regresa $(-1, -1)$; si el problema no está acotado, regresa $(-1,-2)$, y, si hay que realizar un paso más, regresa la posición (fila y columna) del elemento sobre el cual se va a pivotear en el siguiente paso. Esta función se manda a llamar solamente desde \textsc{pivoteo}.
+    \item \textsc{pivoteo} Dada una tabla Simplex, esta función pivotea sobre el elemento 
+    que dictamina la regla de Bland y regresa el resultado. Si no se pudo pivotear, ya sea porque es tabla final o porque el problema no está acotado, regresa como valor el que obtiene de la función \textsc{reglaDeBland}. Si pudo pivotear, regresa un número 1.
+\end{enumerate}
+
+A continuación se presenta el pseudocódigo de la función \textsc{solver}. La función primero obtiene la tabla cero del problema al mandar llamar a \textsc{matrizT0}. Posteriormente obtiene la tabla Simplex inicial al asegurarse de que la base se encuentra en la tabla. Después, intenta pivotear sobre la tabla hasta que encuentre que el problema no es acotado o bien encuentre la solución del problema. Por último, regresa la última tabla a la que llegó y el valor de la función objetivo evaluada en la solución o \textsc{NaN} si el problema no está acotado.
+\begin{center}
+    \begin{algorithm}[H]
+    \caption{Función \textsc{solver}}
+    \begin{algorithmic}
+    \Function{solver}{$A, b, c, M$} \textbf{returns} $t_1$, $z$    
+    \State $t_0$ $\gets$ \textsc{matrizT0}($A, b, c, M$)
+
+    \For{$i$ \textbf{in} \textsc{range}(\textsc{len}($A$))}
+        \State $t_0[-1] \gets t_0[-1] + t_0[i]*(-M)$
+    \EndFor        
+
+    \State $t_1, z \gets$ \textsc{pivoteo}($t_0$)
+
+    \While{$z \geq 0$}
+        \State $t_1, z \gets$ \textsc{pivoteo}($t_1$)
+    \EndWhile
+
+    \If{no acotado}
+        \State \textbf{return} $t_1$, \textsc{NaN}
+    \EndIf
+
+    \State \textbf{return} $t_1, (-1)*t_1[-1][-1]$
+
+    \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\end{center}
+
+Para la función \textsc{matrizT0} solamente se manipulan los parámetros con la librería \texttt{numpy}; al tratarse de pocas líneas y de procedimiento sencillo, no incluiremos un pseudocódigo. Basta mencionar que pegamos los costos relativos hasta abajo de la tabla y, a la derecha, agregamos unas columnas que corresponden a las variables añadidas por el Método de la Gran M. La última columna corresponde al vector $b$ y se inicializa el valor de la función objetivo en cero. 
+
+La función \textsc{reglaDeBland} es un poco más interesante. Como se mencionó al principio, recibe como parámetro una tabla Simplex. Primero busca los índices de los costos relativos en los que los costos son estrictamente negativos. Si no encuentra ninguno, entonces regresa $(-1, -1)$ pues la tabla es final. Si encuentra alguno, entonces almacena como columna de salida el índice que esté más a la izquierda. Posteriormente, recorre $b_i$ y $y_i$, donde $b_i$ es el elemento de hasta la derecha de la tabla en la $i$-ésima fila y $y_i$ es el elemento correspondiente, pero de la columna de salida. Si $y_i$ es estrictamente postivo, entonces almacena en un arreglo el valor de $b_i / y_i$; si no, almacena un $-1$. Luego busca en ese arreglo si hay valores mayores o iguales a cero; si hay, regresa el índice que corresponde a la fila de ese elemento; si no hay, entonces regresa $(-1,-2)$, pues estaríamos tratando con un problema no acotado. El pseudocódigo se presenta a continuación:
+\begin{center}
+    \begin{algorithm}[H]
+    \caption{Función \textsc{reglaDeBland}}
+    \begin{algorithmic}
+    \Function{reglaDeBland}{tablaSimplex} \textbf{returns} renglonSal, colSal 
+
+    \State cr $\gets$ costos relativos tablaSimplex
+    \State busq $\gets$ índices donde cr $< 0$
+
+    \If{\textsc{len}(busq) == 0} \Comment{todos los costos relativos son positivos}
+        \State \textbf{return} $(-1,-1)$
+    \Else
+        \State colSal $\gets$ busq[0]
+    \EndIf
+
+    \State $b_k \gets$ tablaSimplex[:, -1]
+    \State $y_k \gets$ tablaSimplex[:, colSal]
+    \State $by \gets$ []
+    
+    \For{$b_i, y_i$ \textbf{in} ($b_k,y_k$)}
+        \If{$y_i > 0$}
+            \State by.\textsc{append}($b_i/y_i$)
+        \Else
+        \State by.\textsc{append}($-1$)
+        \EndIf
+    \EndFor
+
+    \State valid $\gets$ índices donde by $\geq 0$
+
+    \If{\textsc{len}(valid) == 0} \Comment{el problema no está acotado}
+        \State \textbf{return} $(-1,-2)$    
+    \EndIf
+
+    \State renglonSal $\gets$ argmin\{by $\mid$  by$>0$\}
+
+    \State \textbf{return} renglonSal, colSal
+
+    \EndFunction
+    \end{algorithmic}
+    \end{algorithm}
+\end{center}
+
+\subsection{Resultados del código}
+
+\subsection{Posibles áreas de mejora}
+
+\section{Casos de estudio}
+
+%%%%%% FIN DEL TEXTO %%%%%%
+
+\end{document}
