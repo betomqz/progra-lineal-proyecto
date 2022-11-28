@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
     t1, z = solver(A, b, c, M)
     print(t1)
-    print(f"\nEl valor de la función objetivo es: {z}")
+    print(f"\nEl valor   de la función objetivo es: {z}")
 
     print("\n\n----- PROBLEMA 1 -----")
     c1 = np.array([0, -9, -1, 0, 2, 1])
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     b1 = np.array([10, 2, 6])
     t1, z1 = solver(A1, b1, c1, M)
     print(t1)
-    print(f"\nEl valor de la función objetivo es: {z1}")
+    print(f"\nEl valor de la función objetivo es: {z1}")
 
     print("\n\n----- PROBLEMA 2 -----")
     c2 = np.array([-3, 1, 0, 0])
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     b2 = np.array([5, 4])
     t2, z2 = solver(A2, b2, c2, M)
     print(t2)
-    print(f"\nEl valor de la función objetivo es: {z2}")
+    print(f"\nEl valor de la función objetivo es: {z2}")
 
     print("\n\n----- PROBLEMA 3 -----")
     c3 = np.array([-40, -30, 0, 0])
@@ -140,4 +140,18 @@ if __name__ == "__main__":
     b3 = np.array([12, 16])
     t3, z3 = solver(A3, b3, c3, M)
     print(t3)
-    print(f"\nEl valor de la función objetivo es: {z3}")
+    print(f"\nEl valor de la función objetivo es: {z3}")
+
+    print(print("\n\n----- PROBLEMAS PROFE -----"))
+    c = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,-1,-1,0,0,0,0,0,0,0])
+    b = np.array([2,2,0,0,0,2])
+    A = np.array([
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0,-1, 0, 0, 0, 0],
+        [0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 1,-1, 0,-1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-1, 1, 0, 0,-1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,-1, 0, 0, 0,-1, 0],
+        [2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-1, 0, 0, 0, 0, 1]])
+    t, z = solver(A, b, c, M)
+    print(t)
+    print(f"\nEl valor de la función objetivo es: {z}")
